@@ -2,7 +2,7 @@ import { Router } from "express";
 import { 
   getAllProductsHandler,
   createProductHandler
-} from "./product.controller";
+} from "./tournament.controller";
 
 const router = Router()
 

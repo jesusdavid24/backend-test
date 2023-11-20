@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
 import { hashPassword, createHashToken } from '../../auth/utils/bcrypt';
-import { UserCredential, User } from './user.types';
+import { User } from './user.types';
 
 const prisma = new PrismaClient();
 
@@ -12,8 +12,6 @@ export async function getAllUser() {
       firstName: true,
       lastName: true,
       email: true,
-      avatar: true,
-      //
       roles:{
         select: {
           Role: {
@@ -80,16 +78,6 @@ export async function getUserByEmail(email: string) {
   return user;
 }
 
-export async function getUserByResetToken(resetToken: string) {
-  const user =  await prisma.user.findFirst({
-    where: {
-      resetToken,
-    }
-  })
-
-  return user
-}
-
 export async function deleteUser(id: string) {
   const user = await prisma.user.delete({
     where: {
@@ -100,24 +88,17 @@ export async function deleteUser(id: string) {
   return user;
 }
 
-export async function updateUser(data: User) {
+export async function updateUser(id: string, data: User) {
   const user = await prisma.user.update({
     where: {
-      id: data.id,
+      id: id,
     },
-    data,
-    include: {
-      roles: {
-        select: {
-          Role: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
-        }
-      }
-    }
+    data: {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+    },
   });
 
   return user;
