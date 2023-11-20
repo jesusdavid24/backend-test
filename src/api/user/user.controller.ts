@@ -9,8 +9,6 @@ import {
 } from './user.service';
 import { AuthRequest } from '../../auth/auth.types';
 import { User, RequestUserData, UserCredential } from './user.types';
-import { createUserRole } from '../userRole/userRole.service';
-import { UserRole } from '../userRole/userRole.types';
 import { sendNodeMailer } from '../../config/nodemailer';
 import { welcomeEmail } from '../../utils/emails';
 import errorHandler from '../../utils/errorHandler';
@@ -24,21 +22,15 @@ export async function createUserHandler(req: Request, res: Response) {
       lastName,
       email,
       password,
-    }
+    };
 
     const user: User = await createUser(newUser);
     
-    const dataRelation: UserRole = {
-      userId: user.id,
-      roleId
-    }
-    await createUserRole(dataRelation)
-
     const profile = {
       fullName: `${user.firstName} ${user.lastName}`,
-    }
+    };
 
-    await sendNodeMailer(welcomeEmail(user))
+    await sendNodeMailer(welcomeEmail(user));
         
     res.status(201).json({ message: 'user register successfully, please verifry account', profile });
   } catch (exception: unknown) {
@@ -105,7 +97,7 @@ export async function updateUserHandler(req: AuthRequest, res: Response) {
 
     const data = req.body;
 
-    const user = await updateUser(id, data);
+    const user = await updateUser({ id, ...data });
 
     if (!user) {
       return res.status(404).json({

@@ -11,39 +11,41 @@ datasource db {
 }
 
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
-  firstName    String
-  lastName     String
-  password     String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  roles        UserRole[]
-  Tournament   Tournament? @relation(fields: [tournamentId], references: [id])
-  tournamentId String?
+  id             String           @id @default(cuid())
+  email          String           @unique
+  firstName      String
+  lastName       String
+  password       String
+  isActive       Boolean          @default(false)
+  avatar         String?
+  resetToken     String?
+  tokenExpires   DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  UserTournament UserTournament[]
+  Roles          Roles?           @relation(fields: [rolesId], references: [id])
+  rolesId        String?
 }
 
-model Role {
-  id        String     @id @default(cuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  users     UserRole[]
-}
-
-model UserRole {
-  id     String @id @default(cuid())
-  User   User   @relation(fields: [userId], references: [id])
-  userId String
-  Role   Role   @relation(fields: [roleId], references: [id])
-  roleId String
+model Roles {
+  id   String @id @default(cuid())
+  name String @unique
+  User User[]
 }
 
 model Tournament {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  details   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  User      User[]
+  id             String           @id @default(cuid())
+  name           String           @unique
+  details        String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  UserTournament UserTournament[]
+}
+
+model UserTournament {
+  id           String     @id @default(cuid())
+  User         User       @relation(fields: [userId], references: [id])
+  userId       String
+  Tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String
 }

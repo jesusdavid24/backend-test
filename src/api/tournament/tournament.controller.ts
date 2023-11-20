@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import { clientRedis } from '../../config/redis'
 
 import { 
   getAllTournaments,

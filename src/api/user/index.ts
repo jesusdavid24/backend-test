@@ -16,12 +16,6 @@ const router = Router();
 // /api/users -> GET
 router.get('/', isAuthenticated, hasRole(['ADMIN']), getAllUserHandler);
 
-// /api/users -> POST
-/* router.post('/', [
-  body('email', 'email is required').notEmpty(),
-  body('email', 'invalid email, verify format').isEmail(),
-  body('password', 'password is required').notEmpty(),
-], createUserHandler); */
 router.post('/', 
   checkSchema({
     email: {
@@ -54,9 +48,9 @@ router.post('/',
 router.get('/single', isAuthenticated, getUserHandler);
 
 // /api/users/ -> DELETE
-router.delete('/', isAuthenticated, deleteUserHandler);
+router.delete('/', isAuthenticated, hasRole(['ADMIN']), deleteUserHandler);
 
 // /api/users/ -> PATCH
-router.patch('/', isAuthenticated, updateUserHandler);
+router.patch('/', isAuthenticated, hasRole(['ADMIN', 'USER']), updateUserHandler);
 
 export default router;

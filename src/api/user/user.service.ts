@@ -12,20 +12,16 @@ export async function getAllUser() {
       firstName: true,
       lastName: true,
       email: true,
-      roles:{
+      Roles: {
         select: {
-          Role: {
-            select: {
-              id: true,
-              name: true,
-            }
-          }
-        }
-      }
+          id: true,
+          name: true,
+        },
+      },
     }
   });
   return users;
-}
+};
 
 export async function createUser(input: any) {
 
@@ -44,7 +40,7 @@ export async function createUser(input: any) {
   });
 
   return user;
-}
+};
 
 export async function getUserById(id: string) {
   const user = await prisma.user.findUnique({
@@ -54,7 +50,7 @@ export async function getUserById(id: string) {
   });
 
   return user;
-}
+};
 
 export async function getUserByEmail(email: string) {
   const user = await prisma.user.findUnique({
@@ -62,21 +58,27 @@ export async function getUserByEmail(email: string) {
       email,
     },
     include: {
-      roles: {
+      Roles: {
         select: {
-          Role: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
-        }
-      }
+          id: true,
+          name: true,
+        },
+      },
     }
   });
 
   return user;
-}
+};
+
+export async function getUserByResetToken(resetToken: string) {
+  const user =  await prisma.user.findFirst({
+    where: {
+      resetToken: resetToken,
+    }
+  })
+
+  return user;
+};
 
 export async function deleteUser(id: string) {
   const user = await prisma.user.delete({
@@ -86,19 +88,22 @@ export async function deleteUser(id: string) {
   });
 
   return user;
-}
+};
 
-export async function updateUser(id: string, data: User) {
+export async function updateUser(data: User) {
   const user = await prisma.user.update({
     where: {
-      id: id,
+      id: data.id,
     },
-    data: {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
-    },
+    data,
+    include: {
+      Roles: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    }
   });
 
   return user;
