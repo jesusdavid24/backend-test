@@ -5,9 +5,11 @@ import {
   createTournaments,
   getTournamentById,
   updateTournament,
-  deleteTournament
+  deleteTournament,
+  registerUserToTournament
 } from './tournament.service'
 import errorHandler from '../../utils/errorHandler';
+
 
 export async function getAllTournamentsHandler(req: Request, res: Response) {
   try {
@@ -60,7 +62,7 @@ export async function updateTournamentHandler(req: Request, res: Response) {
 
     const data = req.body
 
-    const tournament = await getTournamentById(id)
+    const tournament = await (id)
 
     if (!tournament) {
       return res.status(404).json({
@@ -75,6 +77,19 @@ export async function updateTournamentHandler(req: Request, res: Response) {
     const message = errorHandler(exception)
     res.status(400).send({ message })
   }
-}
+};
+
+export async function registerPlayerTournamentHandler(req: Request, res: Response) {
+  try {
+    const { userId, tournamentId } = req.body
+  
+    const registerUser = await registerUserToTournament(userId, tournamentId)
+
+    return res.json(registerUser)
+  } catch (exception: unknown) {
+    const message = errorHandler(exception)
+    res.status(400).send({ message })
+  }
+}; 
 
 

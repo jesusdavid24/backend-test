@@ -11,21 +11,23 @@ export async function getAllTournaments() {
       id: true,
       name: true,
       details: true,
+      image: true,
     }
   });
   return tournaments;
-}
+};
 
 export async function createTournaments(input: Tournament) {
   const tournament = await prisma.tournament.create({
     data: {
       name: input.name,
       details: input.details,
+      image: input.image,
     }
   })
 
   return tournament
-}
+};
 
 export async function getTournamentById(id: string) {
   const tournament = await prisma.tournament.findUnique({
@@ -37,16 +39,20 @@ export async function getTournamentById(id: string) {
   return tournament;
 };
 
-export async function updateTournament(id: string, input: any) {
+export async function updateTournament(id: string, input: Tournament) {
   const tournament = await prisma.tournament.update({
     where: {
       id,
     },
-    data: input,
+    data: {
+      name: input.name,
+      details: input.details,
+      image: input.image,
+    },
   });
 
   return tournament;
-}
+};
 
 export async function deleteTournament(id: string) {
   const tournament = await prisma.tournament.delete({
@@ -56,4 +62,17 @@ export async function deleteTournament(id: string) {
   });
 
   return tournament;
-}
+};
+
+export async function registerUserToTournament(userId: string, tournamentId: string) {
+  console.log(userId, tournamentId);
+  
+  const tournament = await prisma.userTournament.create({
+    data: {
+      userId,
+      tournamentId,
+    },
+  });
+
+  return tournament;
+};

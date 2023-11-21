@@ -33,7 +33,7 @@ export const isAuthenticated = async (
 export function hasRole(rolesAllowed: string[]) {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { rolesId } = req.user as User;
-    const role = await getRoleById(rolesId || req.user?.rolesId as string);
+    const role = await getRoleById(rolesId);
     const hasPermission = rolesAllowed.includes(role?.name as string);
 
     if (!hasPermission) {
