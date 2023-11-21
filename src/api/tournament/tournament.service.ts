@@ -8,7 +8,7 @@ export async function getAllTournaments() {
 
   const tournaments = await prisma.tournament.findMany({
     select: {
-      id: false,
+      id: true,
       name: true,
       details: true,
     }

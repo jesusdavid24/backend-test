@@ -23,24 +23,20 @@ export async function getAllUser() {
   return users;
 };
 
-export async function createUser(input: any) {
-
+export async function createUser(input: User) {
   const hashedPassword = await hashPassword(input.password);
-  const expiresIn = Date.now() + 1000 * 60 * 60 * 24 // 24 horas
 
   const data = {
     ...input,
     password: hashedPassword,
-    resetToken: createHashToken(input.email),
-    tokenExpires: new Date(expiresIn)
-  }
+  };
 
   const user = await prisma.user.create({
-    data
+    data,
   });
 
   return user;
-};
+}
 
 export async function getUserById(id: string) {
   const user = await prisma.user.findUnique({
@@ -70,16 +66,6 @@ export async function getUserByEmail(email: string) {
   return user;
 };
 
-export async function getUserByResetToken(resetToken: string) {
-  const user =  await prisma.user.findFirst({
-    where: {
-      resetToken: resetToken,
-    }
-  })
-
-  return user;
-};
-
 export async function deleteUser(id: string) {
   const user = await prisma.user.delete({
     where: {
@@ -90,20 +76,18 @@ export async function deleteUser(id: string) {
   return user;
 };
 
-export async function updateUser(data: User) {
+export async function updateUser(id: string, data: User) {
   const user = await prisma.user.update({
     where: {
-      id: data.id,
+      id: id,
     },
-    data,
-    include: {
-      Roles: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    }
+    data: {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      rolesId: data.rolesId,
+    },
   });
 
   return user;

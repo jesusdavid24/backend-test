@@ -15,29 +15,16 @@ import errorHandler from '../../utils/errorHandler';
 
 export async function createUserHandler(req: Request, res: Response) {
   try {
-    const { firstName, lastName, email, password, roleId }: RequestUserData = req.body;   
-    
-    const newUser: UserCredential = {
-      firstName,
-      lastName,
-      email,
-      password,
-    };
+    const data = req.body;
 
-    const user: User = await createUser(newUser);
-    
-    const profile = {
-      fullName: `${user.firstName} ${user.lastName}`,
-    };
+    const user = await createUser(data);
 
-    await sendNodeMailer(welcomeEmail(user));
-        
-    res.status(201).json({ message: 'user register successfully, please verifry account', profile });
+    res.status(201).json(user);
   } catch (exception: unknown) {
     const message = errorHandler(exception);
     res.status(400).send({ message });
   }
-};
+}
 
 export async function getAllUserHandler(req: Request, res: Response) {
   try {
@@ -72,32 +59,30 @@ export async function getUserHandler(req: AuthRequest, res: Response) {
 
 export async function deleteUserHandler(req: AuthRequest, res: Response) {
   try {
-    const { id } = req.user as User
+    const { id } = req.params;
 
-    const user = await getUserById(id);
-  
+    const user = await deleteUser(id);
+
     if (!user) {
       return res.status(404).json({
         message: 'User not found',
       });
     }
-  
-    await deleteUser(id);
-  
-    return res.json(user);
+
+    res.status(200).send(user);
   } catch (exception: unknown) {
     const message = errorHandler(exception);
     res.status(400).send({ message });
   }
-};
+}
 
 export async function updateUserHandler(req: AuthRequest, res: Response) {
   try {
     const { id } = req.params;
-
+    
     const data = req.body;
 
-    const user = await updateUser({ id, ...data });
+    const user = await updateUser(id, data);
 
     if (!user) {
       return res.status(404).json({

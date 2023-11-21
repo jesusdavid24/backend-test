@@ -44,13 +44,10 @@ router.post('/',
   })
 , createUserHandler);
 
-// /api/users/single -> GET
 router.get('/single', isAuthenticated, getUserHandler);
 
-// /api/users/ -> DELETE
-router.delete('/', isAuthenticated, hasRole(['ADMIN']), deleteUserHandler);
+router.delete('/:id', isAuthenticated, hasRole(['ADMIN']), deleteUserHandler);
 
-// /api/users/ -> PATCH
-router.patch('/', isAuthenticated, hasRole(['ADMIN', 'USER']), updateUserHandler);
+router.put('/:id', isAuthenticated, hasRole(['ADMIN', 'USER']), updateUserHandler);
 
 export default router;

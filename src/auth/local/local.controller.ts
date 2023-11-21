@@ -1,66 +1,42 @@
 import { Request, Response } from 'express';
 
-import { 
-  getUserByEmail, 
-  getUserByResetToken,
-  updateUser 
-} from '../../api/user/user.service';
+import { getUserByEmail } from '../../api/user/user.service';
 import { comparePassword } from '../utils/bcrypt';
-import { createAuthResponse } from './local.service';
+import { signToken, getRoleById } from '../auth.service';
+import errorHandler from '../../utils/errorHandler';
 
-export async function loginHandler(req: Request, res: Response){
+
+export async function loginHandler(req: Request, res: Response) {
   const { email, password } = req.body;
 
   try {
     const user = await getUserByEmail(email);
 
-    if(!user) {
-      return res.status(401).send('Invalid credentials');
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Compare password
-    const isMatch = await comparePassword(password, user.password as string)
-    
-    if(!isMatch) {
-      return res.status(401).send('Invalid credentials');
+    const isMatch = await comparePassword(password, user.password as string);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const { token, profile } = createAuthResponse(user);
-   
-    return res.status(200).json({ token, profile})
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+    const token = signToken(payload);
 
-  } catch(error) {}
-}
+    const newUser = {
+      fullName: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      role: await getRoleById(user.rolesId || ''), 
+    };
 
-export async function activeHandler(req: Request, res: Response){
-  try {
-    const { token: tokenParam } = req.params;
-    const user = await getUserByResetToken(tokenParam);
-
-    if(!user) {
-      return res.status(404).json({ message: 'Invalid token'});
-    }
-
-    if(user.tokenExpires){
-      if(Date.now() > user.tokenExpires.getTime()) {
-        return res.status(400).json({ message: 'Token expired'});
-      }
-    }
-
-    const data = {
-      ...user,
-      isActive: true,
-      resetToken: null,
-      tokenExpires: null
-    }
-
-    const currentUser = await updateUser(data);
-
-    const { token, profile } = createAuthResponse(currentUser);
-
-
-    res.status(200).json({ token, profile})
-  } catch(error: any) {
-    res.status(400).json({ message: error.message })
+    res.status(200).json({ token, newUser });
+  } catch (exception: unknown) {
+    const message = errorHandler(exception);
+    res.status(400).json({ message });
   }
 }
